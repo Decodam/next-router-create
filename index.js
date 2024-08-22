@@ -6,16 +6,16 @@ const path = require('path');
 const chalk = require('chalk');
 
 program
-  .version('1.0.0')
+  .version('1.1.0')
   .description('Next.js Route Creator CLI');
 
 program
   .command('create <routePath>')
   .description('Create a new Next.js route')
-  .option('-l, --layout', 'Create a layout.js file')
-  .option('-lo, --loading', 'Create a loading.js file')
-  .option('-nf, --notfound', 'Create a not-found.js file')
-  .option('-e, --error', 'Create an error.js file')
+  .option('-l, --layout', 'Create a layout.jsx file')
+  .option('-lo, --loading', 'Create a loading.jsx file')
+  .option('-nf, --notfound', 'Create a not-found.jsx file')
+  .option('-e, --error', 'Create an error.jsx file')
   .action((routePath, options) => {
     createRoute(routePath, options);
   });
@@ -23,8 +23,11 @@ program
 program.parse(process.argv);
 
 function createRoute(routePath, options) {
-  const appDirectory = path.join(process.cwd(), 'app');
-  const routeFullPath = path.join(appDirectory, routePath);
+  const baseDirectory = fs.existsSync(path.join(process.cwd(), 'src')) 
+    ? path.join(process.cwd(), 'src', 'app') 
+    : path.join(process.cwd(), 'app');
+
+  const routeFullPath = path.join(baseDirectory, routePath);
   
   // Create the directory structure if it doesn't exist
   fs.ensureDirSync(routeFullPath);
@@ -35,8 +38,8 @@ function createRoute(routePath, options) {
                                 .map((part, index) => index === 0 ? `${part.charAt(0).toUpperCase()}${part.slice(1)}` : `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
                                 .join('') + 'Page';
 
-  // Create the page.js file
-  const pagePath = path.join(routeFullPath, 'page.js');
+  // Create the page.jsx file
+  const pagePath = path.join(routeFullPath, 'page.jsx');
   if (!fs.existsSync(pagePath)) {
     const pageContent = `
 export default function ${functionName}() {
@@ -53,9 +56,9 @@ export default function ${functionName}() {
     console.log(chalk.yellow(`Page already exists at:`, chalk.gray(pagePath)));
   }
 
-  // Create layout.js if option is provided
+  // Create layout.jsx if option is provided
   if (options.layout) {
-    const layoutPath = path.join(routeFullPath, 'layout.js');
+    const layoutPath = path.join(routeFullPath, 'layout.jsx');
     if (!fs.existsSync(layoutPath)) {
       const layoutContent = `
 export default function ${functionName}Layout({ children }) {
@@ -74,9 +77,9 @@ export default function ${functionName}Layout({ children }) {
     }
   }
 
-  // Create loading.js if option is provided
+  // Create loading.jsx if option is provided
   if (options.loading) {
-    const loadingPath = path.join(routeFullPath, 'loading.js');
+    const loadingPath = path.join(routeFullPath, 'loading.jsx');
     if (!fs.existsSync(loadingPath)) {
       const loadingContent = `
 export default function ${functionName}Loading() {
@@ -94,9 +97,9 @@ export default function ${functionName}Loading() {
     }
   }
 
-  // Create not-found.js if option is provided
+  // Create not-found.jsx if option is provided
   if (options.notfound) {
-    const notFoundPath = path.join(routeFullPath, 'not-found.js');
+    const notFoundPath = path.join(routeFullPath, 'not-found.jsx');
     if (!fs.existsSync(notFoundPath)) {
       const notFoundContent = `
 export default function ${functionName}NotFound() {
@@ -114,9 +117,9 @@ export default function ${functionName}NotFound() {
     }
   }
 
-  // Create error.js if option is provided
+  // Create error.jsx if option is provided
   if (options.error) {
-    const errorPath = path.join(routeFullPath, 'error.js');
+    const errorPath = path.join(routeFullPath, 'error.jsx');
     if (!fs.existsSync(errorPath)) {
       const errorContent = `
 export default function ${functionName}Error() {
